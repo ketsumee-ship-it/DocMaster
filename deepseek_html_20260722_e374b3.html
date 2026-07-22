@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DocMaster Pro — конвертируй любые файлы в Word и PDF</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
+  <style>
+    /* ===== ГЛОБАЛЬНЫЙ СБРОС ===== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    :root {
+      --bg-primary: #0b0c1a;
+      --bg-secondary: #12142b;
+      --glass-bg: rgba(255,255,255,0.04);
+      --glass-border: rgba(255,255,255,0.08);
+      --text-primary: #f0f2ff;
+      --text-secondary: #b3b8e6;
+      --accent-1: #6a5cff;
+      --accent-2: #ff3cac;
+      --accent-3: #00d4ff;
+      --shadow-glow: 0 0 60px rgba(106,92,255,0.2);
+      --radius: 28px;
+      --transition: 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    /* ===== ЧАСТИЦЫ ===== */
+    #particles-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+    /* ===== ОБЩИЕ КОМПОНЕНТЫ ===== */
+    .section {
+      position: relative;
+      z-index: 1;
+      padding: 100px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+    .section:last-of-type { border-bottom: none; }
+    .section-label {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent-3);
+      background: rgba(0,212,255,0.08);
+      padding: 6px 18px;
+      border-radius: 40px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(0,212,255,0.12);
+    }
+    .section-title {
+      font-size: clamp(36px, 5vw, 56px);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -1px;
+      margin-bottom: 20px;
+    }
+    .section-title .highlight {
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .section-desc {
+      font-size: 18px;
+      color: var(--text-secondary);
+      max-width: 640px;
+      line-height: 1.7;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 40px;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 16px;
+      background: var(--accent-1);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 0 30px rgba(106,92,255,0.25);
+      text-decoration: none;
+    }
+    .btn:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 0 50px rgba(106,92,255,0.4);
+      background: #7b6fff;
+    }
+    .btn-outline {
+      background: transparent;
+      box-shadow: none;
+      border: 1px solid rgba(255,255,255,0.15);
+      color: var(--text-primary);
+    }
+    .btn-outline:hover {
+      background: rgba(255,255,255,0.06);
+      box-shadow: none;
+      transform: translateY(-4px);
+    }
+    .btn-secondary {
+      background: var(--accent-2);
+      box-shadow: 0 0 30px rgba(255,60,172,0.3);
+    }
+    .btn-secondary:hover {
+      background: #ff5cba;
+      box-shadow: 0 0 50px rgba(255,60,172,0.5);
+    }
+    /* ===== ШАПКА ===== */
+    .navbar {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      z-index: 100;
+      padding: 20px 0;
+      background: rgba(11,12,26,0.7);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      transition: var(--transition);
+    }
+    .navbar.scrolled {
+      padding: 12px 0;
+      background: rgba(11,12,26,0.92);
+    }
+    .navbar .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 22px;
+      letter-spacing: -0.5px;
+    }
+    .logo span { color: var(--accent-3); }
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 18px;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 36px;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      transition: var(--transition);
+      position: relative;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--accent-3);
+      transition: var(--transition);
+    }
+    .nav-links a:hover { color: #fff; }
+    .nav-links a:hover::after { width: 100%; }
+    .nav-cta { display: none; }
+    @media (min-width: 768px) { .nav-cta { display: inline-flex; } }
+    .burger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 6px;
+    }
+    .burger span {
+      width: 24px; height: 2px;
+      background: #fff;
+      border-radius: 4px;
+      transition: var(--transition);
+    }
+    @media (max-width: 767px) {
+      .burger { display: flex; }
+      .nav-links {
+        position: fixed;
+        top: 0; right: -100%;
+        width: 70%;
+        max-width: 320px;
+        height: 100%;
+        background: rgba(11,12,26,0.96);
+        backdrop-filter: blur(30px);
+        flex-direction: column;
+        justify-content: center;
+        padding: 40px;
+        gap: 30px;
+        transition: var(--transition);
+        border-left: 1px solid rgba(255,255,255,0.05);
+      }
+      .nav-links.open { right: 0; }
+      .nav-links a { font-size: 18px; }
+    }
+    /* ===== ГЕРОЙ ===== */
+    .hero {
+      position: relative;
+      z-index: 1;
+      padding: 160px 0 100px;
+      display: flex;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .hero .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+    .hero-content .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,212,255,0.06);
+      border: 1px solid rgba(0,212,255,0.12);
+      border-radius: 40px;
+      padding: 6px 18px 6px 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--accent-3);
+      margin-bottom: 28px;
+    }
+    .hero-content .badge .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--accent-3);
+      animation: pulse-dot 2s infinite;
+    }
+    @keyframes pulse-dot {
+      0%,100% { opacity:1; transform:scale(1); }
+      50% { opacity:0.5; transform:scale(0.8); }
+    }
+    .hero h1 {
+      font-size: clamp(40px, 6vw, 72px);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -2px;
+      margin-bottom: 24px;
+    }
+    .hero h1 .highlight {
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      font-size: 20px;
+      color: var(--text-secondary);
+      max-width: 500px;
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 10px;
+    }
+    .hero-stats {
+      display: flex;
+      gap: 40px;
+      margin-top: 48px;
+    }
+    .hero-stats .stat {
+      display: flex;
+      flex-direction: column;
+    }
+    .hero-stats .stat .number {
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .hero-stats .stat .label {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+    /* Блок форматов в герое */
+    .format-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 20px 0 10px;
+    }
+    .format-chips span {
+      background: rgba(0,212,255,0.08);
+      border: 1px solid rgba(0,212,255,0.15);
+      border-radius: 40px;
+      padding: 6px 18px;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .format-chips .all {
+      color: var(--accent-3);
+      border-color: var(--accent-3);
+    }
+    .hero-visual {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .hero-visual .glass-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      padding: 32px 28px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: var(--shadow-glow);
+      transform: perspective(800px) rotateY(-6deg) rotateX(4deg);
+      transition: var(--transition);
+    }
+    .hero-visual .glass-card:hover {
+      transform: perspective(800px) rotateY(-2deg) rotateX(2deg);
+    }
+    .hero-visual .glass-card .mock-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .mock-header .dots {
+      display: flex;
+      gap: 6px;
+    }
+    .mock-header .dots span {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      display: block;
+    }
+    .mock-header .dots span:nth-child(1) { background: #ff5f57; }
+    .mock-header .dots span:nth-child(2) { background: #febc2e; }
+    .mock-header .dots span:nth-child(3) { background: #2ac840; }
+    .mock-header .title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-left: 8px;
+    }
+    .mock-body {
+      padding-top: 24px;
+    }
+    .mock-body .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .mock-body .row:last-child { border-bottom: none; }
+    .mock-body .row .label {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+    .mock-body .row .value {
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .mock-body .progress {
+      margin-top: 20px;
+      height: 6px;
+      width: 100%;
+      background: rgba(255,255,255,0.06);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .mock-body .progress .fill {
+      height: 100%;
+      width: 78%;
+      border-radius: 4px;
+      background: linear-gradient(90deg, var(--accent-1), var(--accent-3));
+      animation: progress-glow 3s ease-in-out infinite alternate;
+    }
+    @keyframes progress-glow {
+      0% { opacity:0.6; }
+      100% { opacity:1; }
+    }
+    @media (max-width: 1024px) {
+      .hero .container {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      .hero p { margin-left: auto; margin-right: auto; }
+      .hero-actions { justify-content: center; }
+      .hero-stats { justify-content: center; }
+      .format-chips { justify-content: center; }
+      .hero-visual .glass-card {
+        transform: none;
+        max-width: 400px;
+        margin: 0 auto;
+      }
+      .hero-visual .glass-card:hover { transform: none; }
+    }
+    /* ===== СЕКЦИЯ ВОЗМОЖНОСТЕЙ ===== */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 30px;
+      margin-top: 50px;
+    }
+    .feature-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      padding: 36px 28px;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: radial-gradient(circle at 0% 0%, rgba(106,92,255,0.06), transparent 70%);
+      opacity: 0;
+      transition: var(--transition);
+    }
+    .feature-card:hover::before { opacity: 1; }
+    .feature-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(106,92,255,0.25);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+    }
+    .feature-icon {
+      width: 48px; height: 48px;
+      border-radius: 14px;
+      background: rgba(106,92,255,0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      margin-bottom: 20px;
+    }
+    .feature-card h3 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .feature-card p {
+      color: var(--text-secondary);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    /* ===== СЕКЦИЯ ФОРМАТЫ ===== */
+    .formats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 20px;
+      margin-top: 40px;
+    }
+    .format-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 24px;
+      text-align: center;
+      transition: var(--transition);
+    }
+    .format-card:hover {
+      border-color: var(--accent-3);
+      transform: translateY(-4px);
+    }
+    .format-card .icon {
+      font-size: 40px;
+    }
+    .format-card .name {
+      font-weight: 600;
+      margin-top: 8px;
+    }
+    .format-card .desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .format-card.highlight {
+      border-color: var(--accent-3);
+      background: rgba(0,212,255,0.05);
+    }
+    /* ===== ТАРИФЫ ===== */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px;
+      margin-top: 50px;
+      align-items: stretch;
+    }
+    .pricing-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      padding: 40px 32px;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .pricing-card.popular {
+      border-color: var(--accent-1);
+      box-shadow: 0 0 40px rgba(106,92,255,0.15);
+    }
+    .pricing-card.popular .badge-popular {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent-1);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 20px;
+      border-radius: 40px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .pricing-card .price {
+      font-size: 44px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin: 16px 0 4px;
+    }
+    .pricing-card .price span {
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+    .pricing-card .plan-name {
+      font-size: 18px;
+      font-weight: 600;
+      color: #fff;
+    }
+    .pricing-card .plan-desc {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+    .pricing-card ul {
+      list-style: none;
+      margin-bottom: 30px;
+      flex-grow: 1;
+    }
+    .pricing-card ul li {
+      padding: 8px 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 15px;
+      color: var(--text-secondary);
+    }
+    .pricing-card ul li::before {
+      content: '✓';
+      color: var(--accent-3);
+      font-weight: 700;
+      font-size: 18px;
+    }
+    .pricing-card .btn {
+      width: 100%;
+      justify-content: center;
+    }
+    /* ===== ДЕМО ===== */
+    .demo-wrapper {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+      margin-top: 40px;
+    }
+    .demo-text .section-title { margin-bottom: 16px; }
+    .demo-text .section-desc { margin-bottom: 28px; }
+    .demo-visual {
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      padding: 24px;
+      position: relative;
+      box-shadow: var(--shadow-glow);
+    }
+    .demo-visual .play-btn {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: rgba(106,92,255,0.8);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      color: #fff;
+      border: 2px solid rgba(255,255,255,0.2);
+      transition: var(--transition);
+      cursor: pointer;
+    }
+    .demo-visual .play-btn:hover {
+      transform: translate(-50%, -50%) scale(1.1);
+      background: var(--accent-1);
+    }
+    @media (max-width: 900px) {
+      .demo-wrapper {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+      .demo-text { order: 2; }
+      .demo-visual { order: 1; }
+    }
+    /* ===== FAQ ===== */
+    .faq-list {
+      max-width: 760px;
+      margin: 40px auto 0;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .faq-item {
+      background: var(--glass-bg);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--glass-border);
+      border-radius: 18px;
+      overflow: hidden;
+      transition: var(--transition);
+    }
+    .faq-item:hover { border-color: rgba(255,255,255,0.12); }
+    .faq-question {
+      padding: 22px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 17px;
+      user-select: none;
+    }
+    .faq-question .icon {
+      font-size: 22px;
+      transition: var(--transition);
+      color: var(--accent-3);
+    }
+    .faq-item.open .faq-question .icon { transform: rotate(45deg); }
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, padding 0.3s ease;
+      padding: 0 28px;
+      color: var(--text-secondary);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+    .faq-item.open .faq-answer {
+      max-height: 300px;
+      padding: 0 28px 24px;
+    }
+    /* ===== ПОДВАЛ ===== */
+    .footer {
+      position: relative;
+      z-index: 1;
+      padding: 60px 0 30px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+      text-align: center;
+    }
+    .footer .container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      align-items: center;
+    }
+    .footer .copyright {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+    .footer .copyright strong { color: #fff; }
+    .footer .links {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      justify-content: center;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+    .footer .links a:hover { color: #fff; }
+    /* ===== АДАПТИВ ===== */
+    @media (max-width: 767px) {
+      .section { padding: 60px 0; }
+      .hero {
+        padding: 120px 0 60px;
+        min-height: auto;
+      }
+      .hero h1 { font-size: 36px; }
+      .hero-stats {
+        flex-wrap: wrap;
+        gap: 24px;
+        justify-content: center;
+      }
+      .pricing-grid {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .features-grid { grid-template-columns: 1fr; }
+      .formats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    /* ===== АНИМАЦИЯ ПОЯВЛЕНИЯ ===== */
+    .animate-on-scroll {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .animate-on-scroll.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    /* ===== КНОПКА НАВЕРХ ===== */
+    .scroll-top {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: var(--accent-1);
+      border: none;
+      color: #fff;
+      font-size: 22px;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(106,92,255,0.3);
+      opacity: 0;
+      visibility: hidden;
+      transition: var(--transition);
+      z-index: 99;
+    }
+    .scroll-top.show {
+      opacity: 1;
+      visibility: visible;
+    }
+    .scroll-top:hover {
+      transform: translateY(-4px);
+      background: #7b6fff;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== ЧАСТИЦЫ ===== -->
+  <canvas id="particles-canvas"></canvas>
+
+  <!-- ===== ШАПКА ===== -->
+  <header class="navbar" id="navbar">
+    <div class="container">
+      <div class="logo">
+        <div class="logo-icon">D</div>
+        Doc<span>Master</span>
+      </div>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#features">Возможности</a></li>
+        <li><a href="#formats">Форматы</a></li>
+        <li><a href="#pricing">Тарифы</a></li>
+        <li><a href="#demo">Демо</a></li>
+        <li><a href="#faq">FAQ</a></li>
+        <li><a href="#download" class="nav-cta btn btn-secondary" style="padding:10px 28px;font-size:14px;">Скачать</a></li>
+      </ul>
+      <div class="burger" id="burger">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== ГЕРОЙ ===== -->
+  <section class="hero" id="download">
+    <div class="container">
+      <div class="hero-content">
+        <div class="badge">
+          <span class="dot"></span> Работает на Windows
+        </div>
+        <h1>
+          Превращаем любые файлы <br />
+          в <span class="highlight">Word или PDF</span><br />
+          за 1 клик
+        </h1>
+        <p>
+          Программа понимает <strong>все популярные форматы</strong> —
+          от сканов и фото до документов и PDF. Просто загрузите файл —
+          она сама распознает текст, таблицы и картинки.
+        </p>
+        <!-- БЛОК ФОРМАТОВ (чипсы) -->
+        <div class="format-chips">
+          <span>📄 PDF</span>
+          <span>📷 JPG / PNG / TIFF</span>
+          <span>📝 DOC / DOCX</span>
+          <span>📃 TXT</span>
+          <span>🖼️ BMP</span>
+          <span class="all">✨ + все остальные</span>
+        </div>
+        <div class="hero-actions">
+          <a href="#pricing" class="btn">Купить лицензию</a>
+          <a href="#demo" class="btn btn-outline">Смотреть демо</a>
+        </div>
+        <div class="hero-stats">
+          <div class="stat">
+            <span class="number">10+</span>
+            <span class="label">форматов</span>
+          </div>
+          <div class="stat">
+            <span class="number">98%</span>
+            <span class="label">точность распознавания</span>
+          </div>
+          <div class="stat">
+            <span class="number">3</span>
+            <span class="label">бесплатные попытки</span>
+          </div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="glass-card">
+          <div class="mock-header">
+            <div class="dots">
+              <span></span><span></span><span></span>
+            </div>
+            <span class="title">DocMaster Pro</span>
+          </div>
+          <div class="mock-body">
+            <div class="row">
+              <span class="label">📄 Исходный файл</span>
+              <span class="value">scan_2026.pdf</span>
+            </div>
+            <div class="row">
+              <span class="label">🔍 Распознано</span>
+              <span class="value">98%</span>
+            </div>
+            <div class="row">
+              <span class="label">📝 Таблицы и картинки</span>
+              <span class="value">Сохранены</span>
+            </div>
+            <div class="row">
+              <span class="label">⬇️ Формат вывода</span>
+              <span class="value" style="color:var(--accent-3);">DOCX</span>
+            </div>
+            <div class="progress">
+              <div class="fill"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== СЕКЦИЯ ВОЗМОЖНОСТЕЙ ===== -->
+  <section class="section" id="features">
+    <div class="container">
+      <div class="animate-on-scroll">
+        <span class="section-label">Возможности</span>
+        <h2 class="section-title">
+          Что умеет <span class="highlight">программа</span>
+        </h2>
+        <p class="section-desc">
+          Всё, что нужно для работы с документами, — в одной программе.
+        </p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card animate-on-scroll">
+          <div class="feature-icon">📄</div>
+          <h3>Из PDF в Word</h3>
+          <p>Сохраняет таблицы, картинки и шрифты. Даже если PDF был отсканирован — распознаёт текст.</p>
+        </div>
+        <div class="feature-card animate-on-scroll">
+          <div class="feature-icon">🖼️</div>
+          <h3>Распознаёт текст с фото</h3>
+          <p>Просто загрузите JPG, PNG или TIFF — программа сама найдёт и вытащит весь текст.</p>
+        </div>
+        <div class="feature-card animate-on-scroll">
+          <div class="feature-icon">📁</div>
+          <h3>Поддерживает любые форматы</h3>
+          <p>TXT, DOC, DOCX, PDF, JPG, PNG, TIFF, BMP — всё превращается в DOCX или PDF.</p>
+        </div>
+        <div class="feature-card animate-on-scroll">
+          <div class="feature-icon">⚡</div>
+          <h3>Очень быстро</h3>
+          <p>50 страниц за 10 секунд. Не ждите — работайте.</p>
+        </div>
+        <div class="feature-card animate-on-scroll">
+          <div class="feature-icon">🔐</div>
+          <h3>Ваши данные никуда не уходят</h3>
+          <p>Всё происходит на вашем компьютере. Никаких облаков и загрузок в интернет.</p>
+        </div>
+        <div class="feature-card animate-on-scroll">
+          <div class="feature-icon">🔄</div>
+          <h3>Обрабатывайте несколько файлов сразу</h3>
+          <p>Загружайте папку или несколько файлов — программа сделает всё за один раз.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== СЕКЦИЯ ФОРМАТЫ (НОВАЯ) ===== -->
+  <section class="section" id="formats" style="background: radial-gradient(ellipse at 50% 100%, rgba(255,60,172,0.05), transparent 60%);">
+    <div class="container">
+      <div class="animate-on-scroll" style="text-align:center;">
+        <span class="section-label">Все форматы</span>
+        <h2 class="section-title">
+          Работает с <span class="highlight">любыми файлами</span>
+        </h2>
+        <p class="section-desc" style="margin:0 auto;">
+          Загружайте что угодно — программа сама разберётся.
+        </p>
+      </div>
+      <div class="formats-grid">
+        <div class="format-card animate-on-scroll">
+          <div class="icon">📄</div>
+          <div class="name">PDF</div>
+          <div class="desc">даже отсканированные</div>
+        </div>
+        <div class="format-card animate-on-scroll">
+          <div class="icon">📷</div>
+          <div class="name">Фото</div>
+          <div class="desc">JPG, PNG, TIFF</div>
+        </div>
+        <div class="format-card animate-on-scroll">
+          <div class="icon">📝</div>
+          <div class="name">Word</div>
+          <div class="desc">DOC, DOCX</div>
+        </div>
+        <div class="format-card animate-on-scroll">
+          <div class="icon">📃</div>
+          <div class="name">Текст</div>
+          <div class="desc">TXT</div>
+        </div>
+        <div class="format-card animate-on-scroll">
+          <div class="icon">🖼️</div>
+          <div class="name">BMP</div>
+          <div class="desc">и другие изображения</div>
+        </div>
+        <div class="format-card highlight animate-on-scroll">
+          <div class="icon">✨</div>
+          <div class="name" style="color:var(--accent-3);">И всё остальное</div>
+          <div class="desc">программа знает всё</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ТАРИФЫ ===== -->
+  <section class="section" id="pricing" style="background: radial-gradient(ellipse at 50% 0%, rgba(106,92,255,0.06), transparent 60%);">
+    <div class="container">
+      <div class="animate-on-scroll" style="text-align:center;">
+        <span class="section-label">Тарифы</span>
+        <h2 class="section-title">
+          Выберите <span class="highlight">ваш план</span>
+        </h2>
+        <p class="section-desc" style="margin:0 auto;">
+          Начните с 3 бесплатных конвертаций, затем выберите подписку.
+        </p>
+      </div>
+      <div class="pricing-grid">
+        <!-- Бесплатный -->
+        <div class="pricing-card animate-on-scroll">
+          <div class="plan-name">🆓 Пробный</div>
+          <div class="price">0 ₽</div>
+          <div class="plan-desc">Попробуйте перед покупкой</div>
+          <ul>
+            <li>3 конвертации</li>
+            <li>Все форматы</li>
+            <li>Распознавание текста</li>
+            <li>Без ограничений по страницам</li>
+          </ul>
+          <a href="#download" class="btn btn-outline" style="justify-content:center;">Скачать бесплатно</a>
+        </div>
+
+        <!-- Месячная -->
+        <div class="pricing-card popular animate-on-scroll">
+          <span class="badge-popular">Популярный</span>
+          <div class="plan-name">📆 Месячная подписка</div>
+          <div class="price">1 490 ₽ <span>/ мес</span></div>
+          <div class="plan-desc">Безлимитные конвертации</div>
+          <ul>
+            <li>Неограниченное число конвертаций</li>
+            <li>Все форматы + распознавание</li>
+            <li>Быстрая поддержка</li>
+            <li>Автообновления</li>
+          </ul>
+          <a href="#" class="btn" style="justify-content:center;">Оплатить через Robokassa</a>
+        </div>
+
+        <!-- Годовая -->
+        <div class="pricing-card animate-on-scroll">
+          <div class="plan-name">🌿 Годовая подписка</div>
+          <div class="price">12 900 ₽ <span>/ год</span></div>
+          <div class="plan-desc">Экономия ~30%</div>
+          <ul>
+            <li>Всё из месячной подписки</li>
+            <li>2 дополнительных активации</li>
+            <li>Новые функции первыми</li>
+            <li>Персональный менеджер</li>
+          </ul>
+          <a href="#" class="btn btn-secondary" style="justify-content:center;">Выбрать годовой</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ДЕМО ===== -->
+  <section class="section" id="demo">
+    <div class="container">
+      <div class="demo-wrapper">
+        <div class="demo-text animate-on-scroll">
+          <span class="section-label">Как это работает</span>
+          <h2 class="section-title">
+            Интерфейс, с которым <span class="highlight">справится каждый</span>
+          </h2>
+          <p class="section-desc">
+            Просто перетащите файл, выберите формат и нажмите «Конвертировать».
+            Всё остальное программа делает сама.
+          </p>
+          <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;">
+            <span style="background:rgba(255,255,255,0.04);padding:6px 16px;border-radius:40px;font-size:14px;border:1px solid rgba(255,255,255,0.06);">Drag & Drop</span>
+            <span style="background:rgba(255,255,255,0.04);padding:6px 16px;border-radius:40px;font-size:14px;border:1px solid rgba(255,255,255,0.06);">Пакетная загрузка</span>
+            <span style="background:rgba(255,255,255,0.04);padding:6px 16px;border-radius:40px;font-size:14px;border:1px solid rgba(255,255,255,0.06);">Прогресс в реальном времени</span>
+          </div>
+        </div>
+        <div class="demo-visual animate-on-scroll">
+          <div style="background:linear-gradient(135deg, #1a1c3a, #25284a);border-radius:16px;padding:20px;min-height:260px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:12px;">
+            <div style="width:100%;display:flex;gap:12px;align-items:center;background:rgba(255,255,255,0.04);padding:12px 18px;border-radius:12px;">
+              <span style="font-size:20px;">📂</span>
+              <span style="flex:1;color:var(--text-secondary);">scan_document.pdf</span>
+              <span style="color:var(--accent-3);font-weight:600;">→ DOCX</span>
+            </div>
+            <div style="width:100%;height:4px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;">
+              <div style="width:64%;height:100%;background:linear-gradient(90deg,var(--accent-1),var(--accent-3));border-radius:4px;"></div>
+            </div>
+            <div style="display:flex;gap:16px;margin-top:8px;">
+              <span style="background:var(--accent-1);padding:8px 32px;border-radius:60px;font-weight:600;font-size:14px;color:#fff;">Конвертировать</span>
+              <span style="background:rgba(255,255,255,0.06);padding:8px 20px;border-radius:60px;font-size:14px;color:var(--text-secondary);">OCR вкл.</span>
+            </div>
+          </div>
+          <div class="play-btn" title="Смотреть видео">▶</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FAQ ===== -->
+  <section class="section" id="faq">
+    <div class="container">
+      <div class="animate-on-scroll" style="text-align:center;">
+        <span class="section-label">Вопросы и ответы</span>
+        <h2 class="section-title">
+          Часто задаваемые <span class="highlight">вопросы</span>
+        </h2>
+      </div>
+      <div class="faq-list">
+        <div class="faq-item animate-on-scroll open">
+          <div class="faq-question">
+            <span>Какие файлы можно конвертировать?</span>
+            <span class="icon">+</span>
+          </div>
+          <div class="faq-answer">
+            PDF, DOC, DOCX, TXT, JPG, JPEG, PNG, TIFF, BMP. На выходе — PDF или DOCX.
+          </div>
+        </div>
+        <div class="faq-item animate-on-scroll">
+          <div class="faq-question">
+            <span>Нужен ли интернет?</span>
+            <span class="icon">+</span>
+          </div>
+          <div class="faq-answer">
+            Нет, всё работает локально. Интернет нужен только для активации лицензии и обновлений.
+          </div>
+        </div>
+        <div class="faq-item animate-on-scroll">
+          <div class="faq-question">
+            <span>Как получить ключ после оплаты?</span>
+            <span class="icon">+</span>
+          </div>
+          <div class="faq-answer">
+            Сразу после оплаты вы получите письмо с ключом на вашу почту. Введите его в программе — и всё работает.
+          </div>
+        </div>
+        <div class="faq-item animate-on-scroll">
+          <div class="faq-question">
+            <span>Можно ли вернуть деньги?</span>
+            <span class="icon">+</span>
+          </div>
+          <div class="faq-answer">
+            Так как это цифровой товар, возврат не предусмотрен, кроме случаев, когда ключ не работает. Подробнее в <a href="#" style="color:var(--accent-3);">публичной оферте</a>.
+          </div>
+        </div>
+        <div class="faq-item animate-on-scroll">
+          <div class="faq-question">
+            <span>Есть ли поддержка?</span>
+            <span class="icon">+</span>
+          </div>
+          <div class="faq-answer">
+            Да, мы отвечаем на письма и в Telegram. Для пользователей подписки — приоритетная помощь.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ПОДВАЛ ===== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="logo" style="font-size:20px;">
+        <div class="logo-icon">D</div>
+        Doc<span>Master</span>
+      </div>
+      <div class="links">
+        <a href="#features">Возможности</a>
+        <a href="#formats">Форматы</a>
+        <a href="#pricing">Тарифы</a>
+        <a href="#faq">FAQ</a>
+        <a href="#">Публичная оферта</a>
+        <a href="#">Политика конфиденциальности</a>
+      </div>
+      <div class="copyright">
+        © 2026 <strong>Некрасов Владимир Афанасьевич</strong>. Все права защищены. <br />
+        ИНН 638207672168
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===== КНОПКА НАВЕРХ ===== -->
+  <button class="scroll-top" id="scrollTopBtn" aria-label="Наверх">↑</button>
+
+  <!-- ===== СКРИПТЫ ===== -->
+  <script>
+    // ===== ЧАСТИЦЫ =====
+    (function() {
+      const canvas = document.getElementById('particles-canvas');
+      const ctx = canvas.getContext('2d');
+      let width, height;
+      let particles = [];
+      const count = 80;
+
+      function resize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+      }
+      window.addEventListener('resize', resize);
+      resize();
+
+      class Particle {
+        constructor() {
+          this.x = Math.random() * width;
+          this.y = Math.random() * height;
+          this.vx = (Math.random() - 0.5) * 0.4;
+          this.vy = (Math.random() - 0.5) * 0.4;
+          this.radius = Math.random() * 2 + 1.2;
+          this.opacity = Math.random() * 0.5 + 0.2;
+        }
+        update() {
+          this.x += this.vx;
+          this.y += this.vy;
+          if (this.x < 0 || this.x > width) this.vx *= -1;
+          if (this.y < 0 || this.y > height) this.vy *= -1;
+        }
+        draw() {
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(106, 92, 255, ${this.opacity})`;
+          ctx.fill();
+        }
+      }
+
+      for (let i = 0; i < count; i++) {
+        particles.push(new Particle());
+      }
+
+      function drawLines() {
+        for (let i = 0; i < particles.length; i++) {
+          for (let j = i + 1; j < particles.length; j++) {
+            const dx = particles[i].x - particles[j].x;
+            const dy = particles[i].y - particles[j].y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 140) {
+              ctx.beginPath();
+              ctx.moveTo(particles[i].x, particles[i].y);
+              ctx.lineTo(particles[j].x, particles[j].y);
+              ctx.strokeStyle = `rgba(106, 92, 255, ${0.06 * (1 - dist / 140)})`;
+              ctx.lineWidth = 0.8;
+              ctx.stroke();
+            }
+          }
+        }
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, width, height);
+        particles.forEach(p => { p.update(); p.draw(); });
+        drawLines();
+        requestAnimationFrame(animate);
+      }
+      animate();
+    })();
+
+    // ===== БУРГЕР =====
+    const burger = document.getElementById('burger');
+    const navLinks = document.getElementById('navLinks');
+    burger.addEventListener('click', () => {
+      navLinks.classList.toggle('open');
+    });
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', () => navLinks.classList.remove('open'));
+    });
+
+    // ===== НАВИГАЦИЯ ПРИ СКРОЛЛЕ =====
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 40) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+      const btn = document.getElementById('scrollTopBtn');
+      if (window.scrollY > 400) {
+        btn.classList.add('show');
+      } else {
+        btn.classList.remove('show');
+      }
+    });
+    document.getElementById('scrollTopBtn').addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // ===== АНИМАЦИЯ ПРИ СКРОЛЛЕ =====
+    const animElements = document.querySelectorAll('.animate-on-scroll');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.15 });
+    animElements.forEach(el => observer.observe(el));
+
+    // ===== FAQ =====
+    document.querySelectorAll('.faq-question').forEach(q => {
+      q.addEventListener('click', () => {
+        const item = q.parentElement;
+        const isOpen = item.classList.contains('open');
+        document.querySelectorAll('.faq-item').forEach(f => f.classList.remove('open'));
+        if (!isOpen) item.classList.add('open');
+      });
+    });
+
+    // ===== ПЛАВНЫЙ СКРОЛЛ ПО ССЫЛКАМ =====
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        const href = this.getAttribute('href');
+        if (href === '#') return;
+        e.preventDefault();
+        const target = document.querySelector(href);
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+
+    // ===== ЗАГЛУШКА ДЛЯ КНОПОК ОПЛАТЫ =====
+    document.querySelectorAll('.pricing-card .btn, .hero-actions .btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        if (this.getAttribute('href') === '#' || this.textContent.includes('Оплатить') || this.textContent.includes('Выбрать')) {
+          e.preventDefault();
+          alert('Страница оплаты будет подключена через Robokassa. Сейчас демонстрация.');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
